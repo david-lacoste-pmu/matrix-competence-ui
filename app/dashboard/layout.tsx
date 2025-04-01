@@ -1,5 +1,5 @@
 import { ReactNode } from "react"
-import { GalleryVerticalEnd, Users, GridIcon } from "lucide-react"
+import { GalleryVerticalEnd, Users, GridIcon, UsersRound } from "lucide-react"
 
 import { DashboardNav } from "@/components/dashboard-nav"
 
@@ -12,6 +12,11 @@ const navItems = [
     title: "Users",
     href: "/dashboard/users",
     icon: <Users className="mr-2 h-4 w-4" />,
+  },
+  {
+    title: "Teams",
+    href: "/dashboard/teams",
+    icon: <UsersRound className="mr-2 h-4 w-4" />,
   },
   {
     title: "Competences",

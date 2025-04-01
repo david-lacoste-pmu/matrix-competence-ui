@@ -1,0 +1,47 @@
+[
+  {
+    "matricule": "EMP12345",
+    "name": "John E223",
+    "surname": "Doe",
+    "habilitations": [
+      {
+        "id": "HAB1"
+      },
+      {
+        "id": "HAB2"
+      }
+    ]
+  },
+  {
+    "matricule": "EMP67890",
+    "name": "Jane",
+    "surname": "Smith",
+    "habilitations": [
+      {
+        "id": "HAB1"
+      },
+      {
+        "id": "HAB3"
+      },
+      {
+        "id": "HAB4"
+      }
+    ]
+  },
+  {
+    "matricule": "EMP54321",
+    "name": "Michael",
+    "surname": "Johnson",
+    "habilitations": [
+      {
+        "id": "HAB2"
+      }
+    ]
+  },
+  {
+    "matricule": "98938",
+    "name": "Fab",
+    "surname": "FHJ",
+    "habilitations": []
+  }
+]

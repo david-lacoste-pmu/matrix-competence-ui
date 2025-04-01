@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { DashboardShell } from "@/components/dashboard-shell"
 import {
   Table,
@@ -13,8 +13,11 @@ import {
 import { MatriceCompetence, Competence, Note } from "@/types/competence"
 import { Personne } from "@/types/team"
 import { Button } from "@/components/ui/button"
-import { PlusCircle } from "lucide-react"
+import { PlusCircle, Search, Filter } from "lucide-react"
 import { AddCompetenceDialog } from "@/components/add-competence-dialog"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Card, CardContent } from "@/components/ui/card"
 
 // Sample notes data
 const notes: Note[] = [
@@ -49,6 +52,24 @@ const competences: Competence[] = [
     libelle: "SQL", 
     description: "Requêtes et optimisation SQL",
     categorie: "Database"
+  },
+  {
+    id: "COMP005",
+    libelle: "Python",
+    description: "Programmation en Python",
+    categorie: "Backend"
+  },
+  {
+    id: "COMP006",
+    libelle: "Docker",
+    description: "Containerisation avec Docker",
+    categorie: "DevOps"
+  },
+  {
+    id: "COMP007",
+    libelle: "AWS",
+    description: "Services cloud Amazon Web Services",
+    categorie: "Cloud"
   },
 ]
 
@@ -86,13 +107,64 @@ const initialMatriceCompetences: MatriceCompetence[] = [
     competence: competences[3],
     note: notes[3],
   },
+  {
+    personne: personnes[0],
+    competence: competences[4],
+    note: notes[1],
+  },
+  {
+    personne: personnes[2],
+    competence: competences[5],
+    note: notes[2],
+  },
+  {
+    personne: personnes[1],
+    competence: competences[6],
+    note: notes[0],
+  },
 ]
 
+// Pre-compute categories to avoid hydration mismatch
+const allCategories = (() => {
+  const uniqueCategories = new Set<string>();
+  competences.forEach(comp => {
+    if (comp.categorie) {
+      uniqueCategories.add(comp.categorie);
+    }
+  });
+  return Array.from(uniqueCategories);
+})();
+
+// Pre-compute competences by category
+const competencesByCategory = (() => {
+  return competences.reduce<Record<string, Competence[]>>((acc, competence) => {
+    const category = competence.categorie || "Autres"
+    if (!acc[category]) {
+      acc[category] = []
+    }
+    acc[category].push(competence)
+    return acc
+  }, {});
+})();
+
 export default function CompetencesPage() {
-  const [matriceCompetences, setMatriceCompetences] = useState<MatriceCompetence[]>(initialMatriceCompetences)
+  // Component state
+  const [isClient, setIsClient] = useState(false)
+  const [matriceCompetences, setMatriceCompetences] = useState<MatriceCompetence[]>([])
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [selectedPersonne, setSelectedPersonne] = useState<string>("")
   const [selectedCompetence, setSelectedCompetence] = useState<string>("")
+  
+  // Search state
+  const [searchTerm, setSearchTerm] = useState("")
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [selectedNoteValue, setSelectedNoteValue] = useState<string | null>(null)
+
+  // Fix hydration mismatch by initializing state on client-side only
+  useEffect(() => {
+    setIsClient(true)
+    setMatriceCompetences(initialMatriceCompetences)
+  }, [])
 
   const handleAddCompetence = (newMatriceCompetence: MatriceCompetence) => {
     // Check if a record already exists for this person and competence
@@ -132,15 +204,57 @@ export default function CompetencesPage() {
     return match ? match.note : null
   }
 
-  // Group competences by category
-  const competencesByCategory = competences.reduce<Record<string, Competence[]>>((acc, competence) => {
-    const category = competence.categorie || "Autres"
-    if (!acc[category]) {
-      acc[category] = []
-    }
-    acc[category].push(competence)
-    return acc
-  }, {})
+  // Filter competences based on search criteria
+  const filteredCompetences = useMemo(() => {
+    if (!isClient) return competences; // Return all competences on server-side to prevent hydration mismatch
+    
+    return competences.filter(comp => {
+      const matchesTerm = searchTerm === "" || 
+        comp.libelle.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        comp.description?.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesCategory = !selectedCategory || comp.categorie === selectedCategory;
+      
+      // Check if competence has any records with the selected note value
+      let matchesNote = true;
+      if (selectedNoteValue) {
+        const noteValue = parseInt(selectedNoteValue);
+        matchesNote = matriceCompetences.some(mc => 
+          mc.competence.id === comp.id && mc.note.valeur === noteValue
+        );
+      }
+      
+      return matchesTerm && matchesCategory && matchesNote;
+    });
+  }, [competences, searchTerm, selectedCategory, selectedNoteValue, matriceCompetences, isClient]);
+
+  // Reset all search filters
+  const clearFilters = () => {
+    setSearchTerm("");
+    setSelectedCategory(null);
+    setSelectedNoteValue(null);
+  };
+
+  // If not client-side yet, render a minimal version to avoid hydration mismatch
+  if (!isClient) {
+    return (
+      <DashboardShell>
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">Competence Matrix</h1>
+              <p className="text-muted-foreground">
+                View and manage team members' competences
+              </p>
+            </div>
+          </div>
+          <div className="h-96 flex items-center justify-center">
+            <p>Loading competence matrix...</p>
+          </div>
+        </div>
+      </DashboardShell>
+    );
+  }
 
   return (
     <DashboardShell>
@@ -161,14 +275,98 @@ export default function CompetencesPage() {
           </Button>
         </div>
         
+        {/* Search and filter controls */}
+        <Card>
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label htmlFor="search" className="text-sm font-medium mb-2 block">
+                  Search Competences
+                </label>
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="search"
+                    placeholder="Search by technology or description"
+                    className="pl-9"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label htmlFor="category" className="text-sm font-medium mb-2 block">
+                  Filter by Category
+                </label>
+                <Select 
+                  value={selectedCategory || undefined} 
+                  onValueChange={setSelectedCategory}
+                >
+                  <SelectTrigger id="category">
+                    <SelectValue placeholder="All categories" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All categories</SelectItem>
+                    {allCategories.map(category => (
+                      <SelectItem key={category} value={category}>{category}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <label htmlFor="note" className="text-sm font-medium mb-2 block">
+                  Filter by Competence Level
+                </label>
+                <Select 
+                  value={selectedNoteValue || undefined} 
+                  onValueChange={setSelectedNoteValue}
+                >
+                  <SelectTrigger id="note">
+                    <SelectValue placeholder="Any level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="any">Any level</SelectItem>
+                    {notes.map(note => (
+                      <SelectItem key={note.id} value={note.valeur.toString()}>
+                        {note.valeur} - {note.libelle}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            {(searchTerm || selectedCategory || selectedNoteValue) && (
+              <div className="mt-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Filter className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">
+                    Showing {filteredCompetences.length} of {competences.length} competences
+                  </span>
+                </div>
+                <Button variant="outline" size="sm" onClick={clearFilters}>
+                  Clear Filters
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+        
         <div className="rounded-lg border overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[150px] sticky left-0 bg-white z-10">Person</TableHead>
-                {competences.map((competence) => (
+                {filteredCompetences.map((competence) => (
                   <TableHead key={competence.id} className="min-w-[120px]" title={competence.description}>
                     {competence.libelle}
+                    {competence.categorie && (
+                      <span className="block text-xs text-muted-foreground">
+                        {competence.categorie}
+                      </span>
+                    )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -179,7 +377,7 @@ export default function CompetencesPage() {
                   <TableCell className="font-medium sticky left-0 bg-white">
                     {personne.name} {personne.surname}
                   </TableCell>
-                  {competences.map((competence) => {
+                  {filteredCompetences.map((competence) => {
                     const competenceLevel = getCompetenceLevel(personne.matricule, competence.id)
                     return (
                       <TableCell key={competence.id}>

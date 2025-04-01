@@ -1,11 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { DashboardShell } from "@/components/dashboard-shell"
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -13,109 +12,193 @@ import {
 } from "@/components/ui/table"
 import { User } from "@/types/user"
 import { EditUserDialog } from "@/components/edit-user-dialog"
-
-// Sample data - in a real app this would come from an API or database
-const initialUsers: User[] = [
-  {
-    matricule: "EMP12345",
-    name: "John",
-    surname: "Doe",
-    habilitations: [
-      { id: "HAB1" },
-      { id: "HAB2" },
-    ],
-  },
-  {
-    matricule: "EMP67890",
-    name: "Jane",
-    surname: "Smith",
-    habilitations: [
-      { id: "HAB1" },
-      { id: "HAB3" },
-      { id: "HAB4" },
-    ],
-  },
-  {
-    matricule: "EMP54321",
-    name: "Michael",
-    surname: "Johnson",
-    habilitations: [
-      { id: "HAB2" },
-    ],
-  },
-]
+import { AddUserDialog } from "@/components/add-user-dialog"
+import { Button } from "@/components/ui/button"
+import { PlusCircle } from "lucide-react"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 export default function UsersPage() {
-  const [users, setUsers] = useState<User[]>(initialUsers)
+  const [users, setUsers] = useState<User[]>([])
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [currentUser, setCurrentUser] = useState<User | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [deleteAlertOpen, setDeleteAlertOpen] = useState(false)
+  const [userToDelete, setUserToDelete] = useState<User | null>(null)
+  
+  // Fetch users data from JSON file
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch('/api/users');
+        const data = await response.json();
+        if (data.users) {
+          setUsers(data.users);
+        }
+      } catch (error) {
+        console.error('Failed to fetch users:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchUsers();
+  }, []);
   
   const handleEditClick = (user: User) => {
     setCurrentUser({...user, habilitations: [...user.habilitations]})
     setIsEditDialogOpen(true)
   }
 
-  const handleSaveUser = (updatedUser: User) => {
-    setUsers(users.map(user => 
-      user.matricule === updatedUser.matricule ? updatedUser : user
-    ))
+  const handleDeleteClick = (user: User) => {
+    setUserToDelete(user);
+    setDeleteAlertOpen(true);
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!userToDelete) return;
+    
+    try {
+      const response = await fetch('/api/users/delete', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ matricule: userToDelete.matricule }),
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        // Update the local state by removing the deleted user
+        setUsers(users.filter(user => user.matricule !== userToDelete.matricule));
+      }
+    } catch (error) {
+      console.error('Failed to delete user:', error);
+    } finally {
+      setUserToDelete(null);
+      setDeleteAlertOpen(false);
+    }
+  }
+
+  const handleSaveUser = async (updatedUser: User) => {
+    try {
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user: updatedUser }),
+      });
+      
+      const data = await response.json();
+      if (data.success && data.users) {
+        setUsers(data.users);
+      }
+    } catch (error) {
+      console.error('Failed to save user:', error);
+    }
+  }
+
+  const handleAddUser = async (newUser: User) => {
+    try {
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user: newUser }),
+      });
+      
+      const data = await response.json();
+      if (data.success && data.users) {
+        setUsers(data.users);
+      }
+    } catch (error) {
+      console.error('Failed to add user:', error);
+    }
   }
 
   return (
     <DashboardShell>
       <div className="flex flex-col gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Users</h1>
-          <p className="text-muted-foreground">
-            Manage user accounts and permissions in the system.
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Users</h1>
+            <p className="text-muted-foreground">
+              Manage user accounts and permissions in the system.
+            </p>
+          </div>
+          <Button 
+            onClick={() => setIsAddDialogOpen(true)}
+            className="flex items-center gap-2"
+          >
+            <PlusCircle className="h-4 w-4" />
+            Add User
+          </Button>
         </div>
+        
         <div className="rounded-lg border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Matricule</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Surname</TableHead>
-                <TableHead>Habilitations</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {users.map((user) => (
-                <TableRow key={user.matricule}>
-                  <TableCell className="font-medium">{user.matricule}</TableCell>
-                  <TableCell>{user.name}</TableCell>
-                  <TableCell>{user.surname}</TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {user.habilitations.map((habilitation) => (
-                        <span
-                          key={habilitation.id}
-                          className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800"
-                        >
-                          {habilitation.id}
-                        </span>
-                      ))}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      <button 
-                        className="text-sm text-blue-600 hover:text-blue-800"
-                        onClick={() => handleEditClick(user)}
-                      >
-                        Edit
-                      </button>
-                      <button className="text-sm text-red-600 hover:text-red-800">
-                        Delete
-                      </button>
-                    </div>
-                  </TableCell>
+          {isLoading ? (
+            <div className="p-4 text-center">Loading users...</div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Matricule</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Surname</TableHead>
+                  <TableHead>Habilitations</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {users.map((user) => (
+                  <TableRow key={user.matricule}>
+                    <TableCell className="font-medium">{user.matricule}</TableCell>
+                    <TableCell>{user.name}</TableCell>
+                    <TableCell>{user.surname}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1">
+                        {user.habilitations.map((habilitation, index) => (
+                          <span
+                            key={index}
+                            className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800"
+                          >
+                            {habilitation.id}
+                          </span>
+                        ))}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex space-x-2">
+                        <button 
+                          className="text-sm text-blue-600 hover:text-blue-800"
+                          onClick={() => handleEditClick(user)}
+                        >
+                          Edit
+                        </button>
+                        <button 
+                          className="text-sm text-red-600 hover:text-red-800"
+                          onClick={() => handleDeleteClick(user)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </div>
       </div>
       
@@ -125,6 +208,36 @@ export default function UsersPage() {
         user={currentUser}
         onSave={handleSaveUser}
       />
+      
+      <AddUserDialog
+        isOpen={isAddDialogOpen}
+        onClose={() => setIsAddDialogOpen(false)}
+        onSave={handleAddUser}
+      />
+
+      <AlertDialog open={deleteAlertOpen} onOpenChange={setDeleteAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to delete this user?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the user
+              {userToDelete && (
+                <span className="font-medium"> {userToDelete.name} {userToDelete.surname} ({userToDelete.matricule})</span>
+              )}
+              .
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleConfirmDelete}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DashboardShell>
   )
 }

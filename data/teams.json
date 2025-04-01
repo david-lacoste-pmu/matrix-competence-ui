@@ -1,0 +1,29 @@
+[
+  {
+    "code": "EQ001",
+    "nom": "Équipe Backend",
+    "description": "Équipe responsable du développement backend",
+    "membres": [
+      { "matricule": "EMP12345", "name": "John", "surname": "Doe" },
+      { "matricule": "EMP67890", "name": "Jane", "surname": "Smith" }
+    ]
+  },
+  {
+    "code": "EQ002",
+    "nom": "Équipe Frontend",
+    "description": "Équipe responsable du développement frontend",
+    "membres": [
+      { "matricule": "EMP54321", "name": "Michael", "surname": "Johnson" }
+    ]
+  },
+  {
+    "code": "EQ003",
+    "nom": "Équipe DevOps",
+    "description": "Équipe responsable de l'infrastructure et du déploiement",
+    "membres": [
+      { "matricule": "EMP11111", "name": "Sarah", "surname": "Williams" },
+      { "matricule": "EMP22222", "name": "David", "surname": "Miller" },
+      { "matricule": "EMP33333", "name": "Emily", "surname": "Brown" }
+    ]
+  }
+]

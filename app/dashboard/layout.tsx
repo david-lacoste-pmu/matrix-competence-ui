@@ -1,7 +1,7 @@
 import { ReactNode } from "react"
-import { GalleryVerticalEnd, Users, GridIcon, UsersRound } from "lucide-react"
-
+import { GalleryVerticalEnd, GridIcon, UsersRound, Network, UserRound } from "lucide-react"
 import { DashboardNav } from "@/components/dashboard-nav"
+import { DashboardShell } from "@/components/dashboard-shell"
 
 interface DashboardLayoutProps {
   children: ReactNode
@@ -9,9 +9,9 @@ interface DashboardLayoutProps {
 
 const navItems = [
   {
-    title: "Users",
-    href: "/dashboard/users",
-    icon: <Users className="mr-2 h-4 w-4" />,
+    title: "Personnes",
+    href: "/dashboard/personnes",
+    icon: <UserRound className="mr-2 h-4 w-4" />,
   },
   {
     title: "Teams",
@@ -23,27 +23,32 @@ const navItems = [
     href: "/dashboard/competences",
     icon: <GridIcon className="mr-2 h-4 w-4" />,
   },
+  {
+    title: "Groupements",
+    href: "/dashboard/groupements",
+    icon: <Network className="mr-2 h-4 w-4" />,
+  },
 ]
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
-        <a href="/dashboard" className="flex items-center gap-2 font-medium">
+    <div className="flex h-screen flex-col md:flex-row">
+      {/* Sidebar with navigation */}
+      <aside className="w-full md:w-64 flex-shrink-0 border-r bg-background">
+        <div className="flex h-14 items-center gap-2 border-b px-4">
           <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
             <GalleryVerticalEnd className="size-4" />
           </div>
-          <span>Matrix de Competences</span>
-        </a>
-        <div className="ml-auto flex items-center gap-2">
-          {/* User account dropdown could go here */}
+          <a href="/dashboard" className="font-medium truncate">
+            Matrix de Compétences
+          </a>
         </div>
-      </header>
-      <div className="flex flex-1">
-        <aside className="w-64 border-r bg-background">
-          <DashboardNav items={navItems} />
-        </aside>
-        <main className="flex-1 p-6">{children}</main>
+        <DashboardNav items={navItems} />
+      </aside>
+      
+      {/* Main content area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {children}
       </div>
     </div>
   )

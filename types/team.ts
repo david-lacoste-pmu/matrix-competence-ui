@@ -1,22 +1,37 @@
 // Team related interfaces
 
 export interface Groupement {
-  // Add properties based on your schema
-  id: string;
-  name: string;
+  code: string;
+  libelle: string;
+  direction?: string;
 }
 
 export interface Personne {
-  // We'll use our existing User type as a base
-  matricule: string;
-  name: string;
-  surname: string;
+  identifiant: string;
+  nom: string;
+  prenom: string;
+  poste?: string;
+  equipe?: Team;
 }
 
 export interface Team {
   code: string;
   nom: string;
-  description: string;
+  description?: string;
   groupement?: Groupement;
-  membres: Personne[];
+  membres?: Personne[];
+}
+
+// Request types based on Swagger spec
+export interface CreateTeamRequest {
+  code: string;
+  nom: string;
+  description?: string;
+  groupementCode: string;
+}
+
+export interface UpdateTeamRequest {
+  nom?: string;
+  description?: string;
+  groupementCode?: string;
 }

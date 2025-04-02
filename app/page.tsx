@@ -16,33 +16,24 @@ export default function Home() {
           <div className="flex w-full items-center justify-between py-4">
             <div className="flex items-center">
               <Link href="/" className="flex items-center">
-                <span className="text-2xl font-bold bg-blue-600 text-white px-3 py-1 rounded-md mr-2">PMU</span>
+                <span className="text-2xl font-bold bg-primary text-primary-foreground px-3 py-1 rounded-md mr-2">PMU</span>
                 <span className="text-xl font-semibold text-gray-900">Matrix</span>
               </Link>
               <div className="hidden md:ml-10 md:block">
                 <div className="flex space-x-8">
-                  <Link href="#features" className="text-base font-medium text-gray-700 hover:text-blue-600">
+                  <Link href="#features" className="text-base font-medium text-gray-700 hover:text-primary">
                     Features
-                  </Link>
-                  <Link href="#testimonials" className="text-base font-medium text-gray-700 hover:text-blue-600">
-                    Testimonials
-                  </Link>
-                  <Link href="#pricing" className="text-base font-medium text-gray-700 hover:text-blue-600">
-                    Pricing
-                  </Link>
-                  <Link href="#about" className="text-base font-medium text-gray-700 hover:text-blue-600">
-                    About Us
                   </Link>
                 </div>
               </div>
             </div>
             <div className="ml-10 space-x-4 flex items-center">
-              <Link href="/login" className="hidden md:inline-block text-base font-medium text-gray-700 hover:text-blue-600">
+              <Link href="/login" className="hidden md:inline-block text-base font-medium text-gray-700 hover:text-primary">
                 Sign in
               </Link>
               <Link
                 href="/dashboard"
-                className="hidden md:inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-base font-medium text-white hover:bg-blue-700"
+                className="hidden md:inline-flex items-center justify-center rounded-md border border-transparent bg-primary px-4 py-2 text-base font-medium text-primary-foreground hover:bg-primary/90"
               >
                 Dashboard
               </Link>
@@ -64,7 +55,7 @@ export default function Home() {
               <div className="relative w-full">
                 <div className="flex h-16 items-center justify-between px-6">
                   <Link href="/" className="flex items-center">
-                    <span className="text-2xl font-bold bg-blue-600 text-white px-3 py-1 rounded-md mr-2">PMU</span>
+                    <span className="text-2xl font-bold bg-primary text-primary-foreground px-3 py-1 rounded-md mr-2">PMU</span>
                     <span className="text-xl font-semibold text-gray-900">Matrix</span>
                   </Link>
                   <button
@@ -79,44 +70,23 @@ export default function Home() {
                   <div className="space-y-6 py-6">
                     <Link
                       href="#features"
-                      className="block text-base font-medium text-gray-900 hover:text-blue-600"
+                      className="block text-base font-medium text-gray-900 hover:text-primary"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       Features
-                    </Link>
-                    <Link
-                      href="#testimonials"
-                      className="block text-base font-medium text-gray-900 hover:text-blue-600"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Testimonials
-                    </Link>
-                    <Link
-                      href="#pricing"
-                      className="block text-base font-medium text-gray-900 hover:text-blue-600"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Pricing
-                    </Link>
-                    <Link
-                      href="#about"
-                      className="block text-base font-medium text-gray-900 hover:text-blue-600"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      About Us
                     </Link>
                   </div>
                   <div className="space-y-4 py-6">
                     <Link
                       href="/login"
-                      className="block text-base font-medium text-gray-900 hover:text-blue-600"
+                      className="block text-base font-medium text-gray-900 hover:text-primary"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       Sign in
                     </Link>
                     <Link
                       href="/dashboard"
-                      className="flex w-full items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-base font-medium text-white hover:bg-blue-700"
+                      className="flex w-full items-center justify-center rounded-md border border-transparent bg-primary px-4 py-2 text-base font-medium text-primary-foreground hover:bg-primary/90"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       Dashboard
@@ -135,7 +105,7 @@ export default function Home() {
           <div className="mx-auto max-w-7xl px-6 pt-10 pb-24 sm:pb-32 lg:flex lg:px-8 lg:py-20">
             <div className="mx-auto max-w-2xl lg:mx-0 lg:max-w-xl lg:flex-shrink-0 lg:pt-8">
               <div className="mt-4 sm:mt-6 mb-8">
-                <span className="rounded-full bg-blue-50 px-3 py-1 text-sm font-semibold leading-6 text-blue-600 ring-1 ring-inset ring-blue-600/10">
+                <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold leading-6 text-primary ring-1 ring-inset ring-primary/10">
                   New features released
                 </span>
               </div>
@@ -148,7 +118,7 @@ export default function Home() {
               <div className="mt-10 flex items-center gap-x-6">
                 <Link
                   href="/dashboard"
-                  className="rounded-md bg-blue-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                  className="rounded-md bg-primary px-3.5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                 >
                   Get started
                 </Link>
@@ -183,7 +153,7 @@ export default function Home() {
         <div id="features" className="bg-white py-20 sm:py-24">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="mx-auto max-w-2xl lg:text-center">
-              <h2 className="text-base font-semibold leading-7 text-blue-600">Powerful Features</h2>
+              <h2 className="text-base font-semibold leading-7 text-primary">Powerful Features</h2>
               <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
                 Everything you need to manage team competencies
               </p>
@@ -195,8 +165,8 @@ export default function Home() {
               <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-10 lg:max-w-none lg:grid-cols-2 lg:gap-y-16">
                 <div className="relative pl-16">
                   <dt className="text-base font-semibold leading-7 text-gray-900">
-                    <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600">
-                      <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                    <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
+                      <svg className="h-6 w-6 text-primary-foreground" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
                       </svg>
                     </div>
@@ -209,8 +179,8 @@ export default function Home() {
 
                 <div className="relative pl-16">
                   <dt className="text-base font-semibold leading-7 text-gray-900">
-                    <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600">
-                      <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                    <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
+                      <svg className="h-6 w-6 text-primary-foreground" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
                       </svg>
                     </div>
@@ -223,8 +193,8 @@ export default function Home() {
 
                 <div className="relative pl-16">
                   <dt className="text-base font-semibold leading-7 text-gray-900">
-                    <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600">
-                      <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                    <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
+                      <svg className="h-6 w-6 text-primary-foreground" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25M9 16.5v.75m3-3v3M15 12v5.25m-4.5-15H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                       </svg>
                     </div>
@@ -237,8 +207,8 @@ export default function Home() {
 
                 <div className="relative pl-16">
                   <dt className="text-base font-semibold leading-7 text-gray-900">
-                    <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600">
-                      <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                    <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
+                      <svg className="h-6 w-6 text-primary-foreground" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
                       </svg>
                     </div>
@@ -257,7 +227,7 @@ export default function Home() {
         <div id="testimonials" className="bg-gray-50 py-24 sm:py-32">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="mx-auto max-w-2xl text-center">
-              <h2 className="text-base font-semibold leading-7 text-blue-600">Testimonials</h2>
+              <h2 className="text-base font-semibold leading-7 text-primary">Testimonials</h2>
               <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
                 Trusted by organizations worldwide
               </p>
@@ -280,7 +250,7 @@ export default function Home() {
                   </div>
                   <div className="mt-6 border-t border-gray-100 pt-6">
                     <div className="flex items-center gap-4">
-                      <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center font-bold text-white">
+                      <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center font-bold text-primary-foreground">
                         {testimonial.name.charAt(0)}
                       </div>
                       <div>
@@ -295,77 +265,8 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Pricing Section */}
-        <div id="pricing" className="bg-white py-24 sm:py-32">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <div className="mx-auto max-w-2xl sm:text-center">
-              <h2 className="text-base font-semibold leading-7 text-blue-600">Pricing</h2>
-              <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-                Find the right plan for your team
-              </p>
-              <p className="mt-6 text-lg leading-8 text-gray-600">
-                Choose a plan that works best for you and your team. All plans include our core features.
-              </p>
-            </div>
-            <div className="mx-auto mt-16 grid max-w-lg grid-cols-1 gap-y-6 sm:mt-20 sm:gap-y-0 lg:max-w-4xl lg:grid-cols-3">
-              {plans.map((plan, index) => (
-                <div 
-                  key={index}
-                  className={`flex flex-col justify-between rounded-3xl ${
-                    plan.featured 
-                      ? 'bg-blue-600 p-8 sm:p-10 lg:p-8 xl:p-10 text-white ring-2 ring-blue-600 z-10 scale-105' 
-                      : 'bg-white p-8 ring-1 ring-gray-200'
-                  } ${index === 0 ? 'lg:rounded-r-none' : index === 2 ? 'lg:rounded-l-none' : 'lg:rounded-l-none lg:rounded-r-none lg:z-20'}`}
-                >
-                  <div>
-                    <h3 
-                      className={`text-lg font-semibold leading-8 ${
-                        plan.featured ? 'text-white' : 'text-blue-600'
-                      }`}
-                    >
-                      {plan.name}
-                    </h3>
-                    <div className="mt-4 flex items-baseline">
-                      <span className="text-4xl font-bold tracking-tight">${plan.price}</span>
-                      <span className="ml-1 text-sm font-semibold">/month</span>
-                    </div>
-                    <p className={`mt-6 text-base leading-7 ${plan.featured ? 'text-blue-50' : 'text-gray-600'}`}>
-                      {plan.description}
-                    </p>
-                    <ul role="list" className="mt-8 space-y-3">
-                      {plan.features.map((feature, featureIndex) => (
-                        <li key={featureIndex} className="flex gap-3">
-                          <Check 
-                            className={`h-6 w-5 flex-none ${
-                              plan.featured ? 'text-white' : 'text-blue-600'
-                            }`} 
-                            aria-hidden="true" 
-                          />
-                          <span className={`text-sm leading-6 ${plan.featured ? 'text-blue-50' : 'text-gray-600'}`}>
-                            {feature}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <a
-                    href="#"
-                    className={`mt-8 block rounded-md py-2.5 px-3.5 text-center text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
-                      plan.featured
-                        ? 'bg-white text-blue-600 hover:bg-blue-50 focus-visible:outline-white'
-                        : 'bg-blue-600 text-white hover:bg-blue-700 focus-visible:outline-blue-600'
-                    }`}
-                  >
-                    Get started today
-                  </a>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
         {/* CTA Section */}
-        <div className="bg-blue-600">
+        <div className="bg-primary">
           <div className="mx-auto max-w-7xl py-24 sm:px-6 sm:py-32 lg:px-8">
             <div className="relative isolate overflow-hidden bg-gray-900 px-6 py-24 text-center shadow-2xl rounded-3xl sm:px-16">
               <h2 className="mx-auto max-w-2xl text-3xl font-bold tracking-tight text-white sm:text-4xl">
@@ -395,7 +296,7 @@ export default function Home() {
         <div className="mx-auto max-w-7xl overflow-hidden px-6 py-20 sm:py-24 lg:px-8">
           <nav className="mt-10 flex flex-wrap justify-center gap-x-6 gap-y-4">
             {['About', 'Blog', 'Jobs', 'Privacy', 'Terms', 'Contact'].map((item) => (
-              <a key={item} href="#" className="text-sm leading-6 text-gray-600 hover:text-blue-600">
+              <a key={item} href="#" className="text-sm leading-6 text-gray-600 hover:text-primary">
                 {item}
               </a>
             ))}
@@ -428,47 +329,5 @@ const testimonials = [
     name: "Emma Rodriguez",
     role: "Learning & Development",
     company: "Global Services Ltd"
-  }
-];
-
-// Pricing plans
-const plans = [
-  {
-    name: 'Starter',
-    price: '49',
-    description: 'Perfect for small teams getting started with skills management.',
-    features: [
-      'Up to 25 team members',
-      'Basic competence matrix',
-      'Team management',
-      'Email support'
-    ],
-    featured: false
-  },
-  {
-    name: 'Professional',
-    price: '99',
-    description: 'Everything you need for mid-sized organizations.',
-    features: [
-      'Up to 100 team members',
-      'Advanced competence matrix',
-      'Team and department management',
-      'Analytics and reports',
-      'Priority email support'
-    ],
-    featured: true
-  },
-  {
-    name: 'Enterprise',
-    price: '249',
-    description: 'Advanced features for large organizations with complex needs.',
-    features: [
-      'Unlimited team members',
-      'Custom competence frameworks',
-      'Advanced analytics',
-      'API access',
-      'Dedicated account manager'
-    ],
-    featured: false
   }
 ];

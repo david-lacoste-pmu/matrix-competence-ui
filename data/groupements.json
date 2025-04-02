@@ -1,0 +1,22 @@
+[
+  {
+    "code": "G001",
+    "libelle": "Groupement IT",
+    "direction": "Direction Informatique"
+  },
+  {
+    "code": "G002",
+    "libelle": "Groupement Marketing",
+    "direction": "Direction Marketing"
+  },
+  {
+    "code": "G003",
+    "libelle": "Groupement Finance",
+    "direction": "Direction Financière"
+  },
+  {
+    "code": "G004",
+    "libelle": "Groupement RH",
+    "direction": "Direction des Ressources Humaines"
+  }
+]

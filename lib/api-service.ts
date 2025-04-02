@@ -1,31 +1,9 @@
 // API Service pour accéder directement au backend
-import { Team } from '@/types/team';
+import { Team, Personne, Groupement, CreateTeamRequest, UpdateTeamRequest } from '@/types/team';
 import { User, Habilitation } from '@/types/user';
 
 // URL de base de l'API backend
 const API_BASE_URL = 'http://localhost:8080';
-
-// Type pour les personnes de l'API
-interface ApiPersonne {
-  identifiant: string;
-  nom: string;
-  prenom: string;
-  poste?: string;
-  equipe?: any;
-}
-
-// Type pour les équipes de l'API
-interface ApiEquipe {
-  code: string;
-  nom: string;
-  description?: string;
-  groupement?: {
-    code: string;
-    libelle: string;
-    direction?: string;
-  };
-  membres?: ApiPersonne[];
-}
 
 // Type pour les utilisateurs de l'API
 interface ApiUtilisateur {
@@ -35,6 +13,126 @@ interface ApiUtilisateur {
     description?: string;
   }[];
 }
+
+/**
+ * Services pour les groupements
+ */
+export const GroupementService = {
+  // Récupérer tous les groupements
+  async getAllGroupements(): Promise<Groupement[]> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/groupements`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erreur API: ${response.status}`);
+      }
+
+      const groupements: Groupement[] = await response.json();
+      return groupements;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des groupements:', error);
+      throw error;
+    }
+  },
+
+  // Récupérer un groupement par son code
+  async getGroupementByCode(code: string): Promise<Groupement> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/groupements/${code}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error('Groupement non trouvé');
+        }
+        throw new Error(`Erreur API: ${response.status}`);
+      }
+
+      const groupement: Groupement = await response.json();
+      return groupement;
+    } catch (error) {
+      console.error(`Erreur lors de la récupération du groupement ${code}:`, error);
+      throw error;
+    }
+  },
+
+  // Créer un nouveau groupement
+  async createGroupement(groupement: Groupement): Promise<Groupement> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/groupements`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(groupement)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erreur API: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Erreur lors de la création du groupement:', error);
+      throw error;
+    }
+  },
+
+  // Mettre à jour un groupement
+  async updateGroupement(code: string, groupement: Partial<Groupement>): Promise<Groupement> {
+    try {
+      const updateRequest = {
+        libelle: groupement.libelle,
+        direction: groupement.direction
+      };
+
+      const response = await fetch(`${API_BASE_URL}/groupements/${code}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateRequest)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erreur API: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error(`Erreur lors de la mise à jour du groupement ${code}:`, error);
+      throw error;
+    }
+  },
+
+  // Supprimer un groupement
+  async deleteGroupement(code: string): Promise<void> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/groupements/${code}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erreur API: ${response.status}`);
+      }
+    } catch (error) {
+      console.error(`Erreur lors de la suppression du groupement ${code}:`, error);
+      throw error;
+    }
+  }
+};
 
 /**
  * Services pour les équipes
@@ -54,23 +152,8 @@ export const TeamService = {
         throw new Error(`Erreur API: ${response.status}`);
       }
 
-      const equipes: ApiEquipe[] = await response.json();
-
-      // Transformer les données au format attendu par l'application
-      return equipes.map(equipe => ({
-        code: equipe.code,
-        nom: equipe.nom,
-        description: equipe.description || '',
-        groupement: equipe.groupement ? {
-          id: equipe.groupement.code,
-          name: equipe.groupement.libelle
-        } : undefined,
-        membres: equipe.membres?.map(membre => ({
-          matricule: membre.identifiant,
-          name: membre.nom,
-          surname: membre.prenom
-        })) || []
-      }));
+      const equipes: Team[] = await response.json();
+      return equipes;
     } catch (error) {
       console.error('Erreur lors de la récupération des équipes:', error);
       throw error;
@@ -94,23 +177,8 @@ export const TeamService = {
         throw new Error(`Erreur API: ${response.status}`);
       }
 
-      const equipe: ApiEquipe = await response.json();
-
-      // Transformer les données au format attendu par l'application
-      return {
-        code: equipe.code,
-        nom: equipe.nom,
-        description: equipe.description || '',
-        groupement: equipe.groupement ? {
-          id: equipe.groupement.code,
-          name: equipe.groupement.libelle
-        } : undefined,
-        membres: equipe.membres?.map(membre => ({
-          matricule: membre.identifiant,
-          name: membre.nom,
-          surname: membre.prenom
-        })) || []
-      };
+      const equipe: Team = await response.json();
+      return equipe;
     } catch (error) {
       console.error(`Erreur lors de la récupération de l'équipe ${code}:`, error);
       throw error;
@@ -120,40 +188,26 @@ export const TeamService = {
   // Créer une nouvelle équipe
   async createTeam(team: Team): Promise<Team> {
     try {
+      const createRequest: CreateTeamRequest = {
+        code: team.code,
+        nom: team.nom,
+        description: team.description,
+        groupementCode: team.groupement ? team.groupement.code : ''
+      };
+
       const response = await fetch(`${API_BASE_URL}/equipes`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          code: team.code,
-          nom: team.nom,
-          description: team.description,
-          groupementCode: team.groupement?.id
-        })
+        body: JSON.stringify(createRequest)
       });
 
       if (!response.ok) {
         throw new Error(`Erreur API: ${response.status}`);
       }
 
-      const createdEquipe: ApiEquipe = await response.json();
-
-      // Retourner l'équipe créée
-      return {
-        code: createdEquipe.code,
-        nom: createdEquipe.nom,
-        description: createdEquipe.description || '',
-        groupement: createdEquipe.groupement ? {
-          id: createdEquipe.groupement.code,
-          name: createdEquipe.groupement.libelle
-        } : undefined,
-        membres: createdEquipe.membres?.map(membre => ({
-          matricule: membre.identifiant,
-          name: membre.nom,
-          surname: membre.prenom
-        })) || []
-      };
+      return await response.json();
     } catch (error) {
       console.error('Erreur lors de la création de l\'équipe:', error);
       throw error;
@@ -163,39 +217,25 @@ export const TeamService = {
   // Mettre à jour une équipe
   async updateTeam(code: string, team: Partial<Team>): Promise<Team> {
     try {
+      const updateRequest: UpdateTeamRequest = {
+        nom: team.nom,
+        description: team.description,
+        groupementCode: team.groupement ? team.groupement.code : undefined
+      };
+
       const response = await fetch(`${API_BASE_URL}/equipes/${code}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          nom: team.nom,
-          description: team.description,
-          groupementCode: team.groupement?.id
-        })
+        body: JSON.stringify(updateRequest)
       });
 
       if (!response.ok) {
         throw new Error(`Erreur API: ${response.status}`);
       }
 
-      const updatedEquipe: ApiEquipe = await response.json();
-
-      // Retourner l'équipe mise à jour
-      return {
-        code: updatedEquipe.code,
-        nom: updatedEquipe.nom,
-        description: updatedEquipe.description || '',
-        groupement: updatedEquipe.groupement ? {
-          id: updatedEquipe.groupement.code,
-          name: updatedEquipe.groupement.libelle
-        } : undefined,
-        membres: updatedEquipe.membres?.map(membre => ({
-          matricule: membre.identifiant,
-          name: membre.nom,
-          surname: membre.prenom
-        })) || []
-      };
+      return await response.json();
     } catch (error) {
       console.error(`Erreur lors de la mise à jour de l'équipe ${code}:`, error);
       throw error;
@@ -255,7 +295,7 @@ export const UserService = {
         throw new Error(`Erreur API personnes: ${personnesResponse.status}`);
       }
 
-      const personnes: ApiPersonne[] = await personnesResponse.json();
+      const personnes: Personne[] = await personnesResponse.json();
 
       // Combiner les données des deux API
       return utilisateurs.map(utilisateur => {
@@ -305,7 +345,7 @@ export const UserService = {
         throw new Error(`Erreur API personne: ${personneResponse.status}`);
       }
 
-      const personne: ApiPersonne = await personneResponse.json();
+      const personne: Personne = await personneResponse.json();
 
       // Combiner les données des deux API
       return {

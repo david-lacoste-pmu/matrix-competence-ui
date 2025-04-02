@@ -14,36 +14,112 @@ import {
 import { Team, Personne } from "@/types/team"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, UserPlus, Edit } from "lucide-react"
+import { ArrowLeft, UserPlus, Edit, Trash2, AlertCircle } from "lucide-react"
 import { TeamService } from "@/lib/api-service"
+import { AddMemberDialog } from "@/components/add-member-dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 export default function TeamDetailPage({ params }: { params: { code: string } }) {
   const router = useRouter()
   const [team, setTeam] = useState<Team | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isAddMemberDialogOpen, setIsAddMemberDialogOpen] = useState(false)
+  const [isRemoveMemberDialogOpen, setIsRemoveMemberDialogOpen] = useState(false)
+  const [memberToRemove, setMemberToRemove] = useState<Personne | null>(null)
+
+  const fetchTeamData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await TeamService.getTeamByCode(params.code);
+      setTeam(data);
+    } catch (err) {
+      console.error('Failed to fetch team:', err);
+      setError("Une erreur est survenue lors du chargement de l'équipe.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchTeam = async () => {
-      try {
-        const teamData = await TeamService.getTeamByCode(params.code);
-        setTeam(teamData);
-      } catch (err) {
-        setError('An error occurred while fetching team data');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchTeam();
+    fetchTeamData();
   }, [params.code]);
+
+  const handleAddMember = async (member: Personne) => {
+    if (!team) return;
+    
+    try {
+      setError(null);
+      
+      // In a real implementation, you would call an API to add the member
+      // For now, we'll update the local state and simulate success
+      const updatedMembers = [...(team.membres || []), member];
+      const updatedTeam = { ...team, membres: updatedMembers };
+      
+      // Here you would normally call an API endpoint to add the member
+      // await TeamService.addMemberToTeam(team.code, member.identifiant);
+      
+      // Update the local state
+      setTeam(updatedTeam);
+      
+    } catch (err) {
+      console.error('Failed to add member:', err);
+      setError("Une erreur est survenue lors de l'ajout du membre à l'équipe.");
+      throw err;
+    }
+  };
+
+  const handleRemoveMemberClick = (member: Personne) => {
+    setMemberToRemove(member);
+    setIsRemoveMemberDialogOpen(true);
+  };
+
+  const handleConfirmRemoveMember = async () => {
+    if (!team || !memberToRemove) return;
+    
+    try {
+      setError(null);
+      
+      // In a real implementation, you would call an API to remove the member
+      // For now, we'll update the local state and simulate success
+      const updatedMembers = team.membres?.filter(
+        m => m.identifiant !== memberToRemove.identifiant
+      ) || [];
+      
+      const updatedTeam = { ...team, membres: updatedMembers };
+      
+      // Here you would normally call an API endpoint to remove the member
+      // await TeamService.removeMemberFromTeam(team.code, memberToRemove.identifiant);
+      
+      // Update the local state
+      setTeam(updatedTeam);
+      setIsRemoveMemberDialogOpen(false);
+      setMemberToRemove(null);
+      
+    } catch (err) {
+      console.error('Failed to remove member:', err);
+      setError("Une erreur est survenue lors de la suppression du membre.");
+    }
+  };
 
   if (loading) {
     return (
       <DashboardShell>
         <div className="flex items-center justify-center h-64">
-          <p className="text-lg">Loading team details...</p>
+          <div className="flex flex-col items-center space-y-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-700"></div>
+            <p className="text-lg">Loading team details...</p>
+          </div>
         </div>
       </DashboardShell>
     )
@@ -53,6 +129,7 @@ export default function TeamDetailPage({ params }: { params: { code: string } })
     return (
       <DashboardShell>
         <div className="flex flex-col items-center justify-center h-64 gap-4">
+          <AlertCircle className="h-10 w-10 text-red-600" />
           <p className="text-lg text-red-600">{error || 'Team not found'}</p>
           <Button onClick={() => router.push("/dashboard/teams")}>
             Back to Teams
@@ -83,6 +160,20 @@ export default function TeamDetailPage({ params }: { params: { code: string } })
           </div>
         </div>
 
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative">
+            <span className="block sm:inline">{error}</span>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="absolute top-2 right-2"
+              onClick={() => setError(null)}
+            >
+              Dismiss
+            </Button>
+          </div>
+        )}
+
         {/* Team information card */}
         <div className="grid gap-6 md:grid-cols-2">
           <Card>
@@ -102,11 +193,26 @@ export default function TeamDetailPage({ params }: { params: { code: string } })
                 </div>
                 <div className="grid grid-cols-[100px_1fr] gap-2">
                   <div className="font-semibold text-muted-foreground">Description:</div>
-                  <div>{team.description}</div>
+                  <div>{team.description || <span className="text-muted-foreground italic">No description</span>}</div>
                 </div>
+                {team.groupement && (
+                  <div className="grid grid-cols-[100px_1fr] gap-2">
+                    <div className="font-semibold text-muted-foreground">Groupement:</div>
+                    <div>
+                      <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-sm font-medium text-blue-800">
+                        {team.groupement.libelle}
+                      </span>
+                      {team.groupement.direction && (
+                        <div className="text-sm text-muted-foreground mt-1">
+                          {team.groupement.direction}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
                 <div className="grid grid-cols-[100px_1fr] gap-2">
                   <div className="font-semibold text-muted-foreground">Members:</div>
-                  <div>{team.membres.length}</div>
+                  <div>{team.membres?.length || 0}</div>
                 </div>
                 <div className="pt-2">
                   <Button size="sm" variant="outline" className="mr-2">
@@ -127,7 +233,7 @@ export default function TeamDetailPage({ params }: { params: { code: string } })
             <CardContent>
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col items-center justify-center p-4 bg-primary/10 rounded-lg">
-                  <span className="text-4xl font-bold">{team.membres.length}</span>
+                  <span className="text-4xl font-bold">{team.membres?.length || 0}</span>
                   <span className="text-sm text-muted-foreground">Total Members</span>
                 </div>
                 <div className="flex flex-col items-center justify-center p-4 bg-primary/10 rounded-lg">
@@ -146,7 +252,11 @@ export default function TeamDetailPage({ params }: { params: { code: string } })
               <CardTitle>Team Members</CardTitle>
               <CardDescription>Members of {team.nom}</CardDescription>
             </div>
-            <Button size="sm" className="flex items-center">
+            <Button 
+              size="sm" 
+              className="flex items-center"
+              onClick={() => setIsAddMemberDialogOpen(true)}
+            >
               <UserPlus className="h-4 w-4 mr-2" />
               Add Member
             </Button>
@@ -156,60 +266,95 @@ export default function TeamDetailPage({ params }: { params: { code: string } })
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Matricule</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Surname</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead>Identifiant</TableHead>
+                    <TableHead>Nom</TableHead>
+                    <TableHead>Prénom</TableHead>
+                    <TableHead>Poste</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {team.membres.map((member) => (
-                    <TableRow key={member.matricule}>
-                      <TableCell className="font-medium">{member.matricule}</TableCell>
-                      <TableCell>{member.name}</TableCell>
-                      <TableCell>{member.surname}</TableCell>
-                      <TableCell>
-                        <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
-                          Team Member
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <div className="h-2.5 w-2.5 rounded-full bg-green-500 mr-2"></div>
-                          Active
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <button className="text-sm text-blue-600 hover:text-blue-800">
-                            View
-                          </button>
-                          <button className="text-sm text-red-600 hover:text-red-800">
-                            Remove
-                          </button>
-                        </div>
+                  {(team.membres && team.membres.length > 0) ? (
+                    team.membres.map((member) => (
+                      <TableRow key={member.identifiant}>
+                        <TableCell className="font-medium">{member.identifiant}</TableCell>
+                        <TableCell>{member.nom}</TableCell>
+                        <TableCell>{member.prenom}</TableCell>
+                        <TableCell>
+                          {member.poste ? (
+                            <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+                              {member.poste}
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground text-sm">Non spécifié</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex space-x-2">
+                            <button className="text-sm text-blue-600 hover:text-blue-800">
+                              View
+                            </button>
+                            <button 
+                              className="text-sm text-red-600 hover:text-red-800"
+                              onClick={() => handleRemoveMemberClick(member)}
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                        No team members found. Click "Add Member" to add someone to this team.
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )}
                 </TableBody>
               </Table>
-
-              {/* Empty state if no members */}
-              {team.membres.length === 0 && (
-                <div className="flex flex-col items-center justify-center h-32">
-                  <p className="text-muted-foreground">No team members found</p>
-                  <Button variant="outline" size="sm" className="mt-2">
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    Add Member
-                  </Button>
-                </div>
-              )}
             </div>
           </CardContent>
         </Card>
       </div>
+      
+      {team && (
+        <AddMemberDialog
+          isOpen={isAddMemberDialogOpen}
+          onClose={() => setIsAddMemberDialogOpen(false)}
+          onAddMember={handleAddMember}
+          team={team}
+        />
+      )}
+      
+      <AlertDialog 
+        open={isRemoveMemberDialogOpen} 
+        onOpenChange={setIsRemoveMemberDialogOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove Team Member</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove{' '}
+              <span className="font-medium">
+                {memberToRemove?.prenom} {memberToRemove?.nom} ({memberToRemove?.identifiant})
+              </span>{' '}
+              from this team? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setMemberToRemove(null)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmRemoveMember}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DashboardShell>
   )
 }

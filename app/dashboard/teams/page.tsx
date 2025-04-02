@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button"
 import { PlusCircle } from "lucide-react"
 import { CreateTeamDialog } from "@/components/create-team-dialog"
 import { EditTeamDialog } from "@/components/edit-team-dialog"
+import { TeamService } from "@/lib/api-service"
 
 export default function TeamsPage() {
   const router = useRouter()
@@ -25,16 +26,12 @@ export default function TeamsPage() {
   const [currentTeam, setCurrentTeam] = useState<Team | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  // Fetch teams data from API
+  // Fetch teams data directly from backend API
   useEffect(() => {
     const fetchTeams = async () => {
       try {
-        const response = await fetch('/api/teams');
-        const data = await response.json();
-        
-        if (data.teams) {
-          setTeams(data.teams);
-        }
+        const teamsData = await TeamService.getAllTeams();
+        setTeams(teamsData);
       } catch (error) {
         console.error('Failed to fetch teams:', error);
       } finally {
@@ -45,8 +42,13 @@ export default function TeamsPage() {
     fetchTeams();
   }, []);
 
-  const handleCreateTeam = (newTeam: Team) => {
-    setTeams([...teams, newTeam])
+  const handleCreateTeam = async (newTeam: Team) => {
+    try {
+      const createdTeam = await TeamService.createTeam(newTeam);
+      setTeams([...teams, createdTeam]);
+    } catch (error) {
+      console.error('Failed to create team:', error);
+    }
   }
 
   const handleEditClick = (e: React.MouseEvent, team: Team) => {
@@ -59,10 +61,15 @@ export default function TeamsPage() {
     router.push(`/dashboard/teams/${team.code}`)
   }
 
-  const handleUpdateTeam = (updatedTeam: Team) => {
-    setTeams(teams.map(team => 
-      team.code === updatedTeam.code ? updatedTeam : team
-    ))
+  const handleUpdateTeam = async (updatedTeam: Team) => {
+    try {
+      await TeamService.updateTeam(updatedTeam.code, updatedTeam);
+      setTeams(teams.map(team => 
+        team.code === updatedTeam.code ? updatedTeam : team
+      ));
+    } catch (error) {
+      console.error('Failed to update team:', error);
+    }
   }
 
   return (

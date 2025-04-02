@@ -25,6 +25,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { UserService } from "@/lib/api-service"
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([])
@@ -35,15 +36,12 @@ export default function UsersPage() {
   const [deleteAlertOpen, setDeleteAlertOpen] = useState(false)
   const [userToDelete, setUserToDelete] = useState<User | null>(null)
   
-  // Fetch users data from JSON file
+  // Fetch users data directly from the backend API
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch('/api/users');
-        const data = await response.json();
-        if (data.users) {
-          setUsers(data.users);
-        }
+        const usersData = await UserService.getAllUsers();
+        setUsers(usersData);
       } catch (error) {
         console.error('Failed to fetch users:', error);
       } finally {
@@ -68,19 +66,9 @@ export default function UsersPage() {
     if (!userToDelete) return;
     
     try {
-      const response = await fetch('/api/users/delete', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ matricule: userToDelete.matricule }),
-      });
-      
-      const data = await response.json();
-      if (data.success) {
-        // Update the local state by removing the deleted user
-        setUsers(users.filter(user => user.matricule !== userToDelete.matricule));
-      }
+      await UserService.deleteUser(userToDelete.matricule);
+      // Update the local state by removing the deleted user
+      setUsers(users.filter(user => user.matricule !== userToDelete.matricule));
     } catch (error) {
       console.error('Failed to delete user:', error);
     } finally {
@@ -91,18 +79,8 @@ export default function UsersPage() {
 
   const handleSaveUser = async (updatedUser: User) => {
     try {
-      const response = await fetch('/api/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ user: updatedUser }),
-      });
-      
-      const data = await response.json();
-      if (data.success && data.users) {
-        setUsers(data.users);
-      }
+      const updatedUsers = await UserService.saveUser(updatedUser);
+      setUsers(updatedUsers);
     } catch (error) {
       console.error('Failed to save user:', error);
     }
@@ -110,18 +88,8 @@ export default function UsersPage() {
 
   const handleAddUser = async (newUser: User) => {
     try {
-      const response = await fetch('/api/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ user: newUser }),
-      });
-      
-      const data = await response.json();
-      if (data.success && data.users) {
-        setUsers(data.users);
-      }
+      const updatedUsers = await UserService.saveUser(newUser);
+      setUsers(updatedUsers);
     } catch (error) {
       console.error('Failed to add user:', error);
     }

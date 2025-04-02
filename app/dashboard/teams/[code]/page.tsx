@@ -15,6 +15,7 @@ import { Team, Personne } from "@/types/team"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, UserPlus, Edit } from "lucide-react"
+import { TeamService } from "@/lib/api-service"
 
 export default function TeamDetailPage({ params }: { params: { code: string } }) {
   const router = useRouter()
@@ -25,14 +26,8 @@ export default function TeamDetailPage({ params }: { params: { code: string } })
   useEffect(() => {
     const fetchTeam = async () => {
       try {
-        const response = await fetch(`/api/teams/${params.code}`);
-        const data = await response.json();
-        
-        if (response.ok && data.team) {
-          setTeam(data.team);
-        } else {
-          setError(data.error || 'Failed to fetch team');
-        }
+        const teamData = await TeamService.getTeamByCode(params.code);
+        setTeam(teamData);
       } catch (err) {
         setError('An error occurred while fetching team data');
         console.error(err);

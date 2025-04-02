@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
-import { User } from '@/types/user';
 
-const dataFilePath = path.join(process.cwd(), 'data/users.json');
+// URL de base de l'API
+const API_BASE_URL = 'http://localhost:8080';
 
 export async function DELETE(request: Request) {
   try {
@@ -13,25 +11,27 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'User matricule is required' }, { status: 400 });
     }
 
-    // Read the current users
-    const fileData = fs.readFileSync(dataFilePath, 'utf8');
-    const users = JSON.parse(fileData) as User[];
+    // Appel à l'API pour supprimer l'utilisateur
+    const response = await fetch(`${API_BASE_URL}/utilisateurs/${matricule}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
     
-    // Find user index
-    const userIndex = users.findIndex(user => user.matricule === matricule);
-    
-    if (userIndex === -1) {
+    // Si l'utilisateur n'existe pas
+    if (response.status === 404) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
     
-    // Remove the user
-    users.splice(userIndex, 1);
-    
-    // Write back to the file
-    fs.writeFileSync(dataFilePath, JSON.stringify(users, null, 2));
+    // Si la suppression a échoué
+    if (!response.ok) {
+      throw new Error(`Erreur lors de la suppression de l'utilisateur: ${response.status}`);
+    }
     
     return NextResponse.json({ success: true });
   } catch (error: any) {
+    console.error('Erreur lors de la suppression de l\'utilisateur:', error);
     return NextResponse.json(
       { error: error.message || 'Failed to delete user' },
       { status: 500 }
